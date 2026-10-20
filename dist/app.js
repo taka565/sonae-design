@@ -109,7 +109,7 @@ dialog.addEventListener("click", event => {
     const target = document.getElementById(targetLink.dataset.dialogTarget);
     closeDialog();
     target.open = true;
-    target.scrollIntoView({behavior:window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth",block:"start"});
+    target.scrollIntoView({behavior:"auto",block:"start"});
     target.querySelector("summary").focus({preventScroll:true});
     returnFocus = target.querySelector("summary");
   }
