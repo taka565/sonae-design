@@ -1,10 +1,11 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { createHash } from "node:crypto";
+import { premiumContent, premiumExtras } from "./premium.mjs";
 import { fileURLToPath } from "node:url";
 
 const root = fileURLToPath(new URL("../dist/", import.meta.url));
 const assetHash = createHash("sha256");
-for (const file of ["style.css", "app.js", "settings.js"]) assetHash.update(await readFile(root + file));
+for (const file of ["style.css", "premium.css", "app.js", "premium.js", "settings.js"]) assetHash.update(await readFile(root + file));
 const assetVersion = assetHash.digest("hex").slice(0,12);
 const base = "https://taka565.github.io/sonae-design/";
 const arrow = '<span aria-hidden="true">↗</span>';
@@ -90,7 +91,8 @@ function footer() {
 }
 function page(title, description, filename, content, home = false) {
   const canonical = filename === "index.html" ? base : base + filename;
-  return `<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#183e36"><title>${title}｜ソナエデザイン</title><meta name="description" content="${description}"><meta property="og:title" content="${title}｜ソナエデザイン"><meta property="og:description" content="${description}"><meta property="og:type" content="website"><meta property="og:locale" content="ja_JP"><meta property="og:image" content="${base}assets/readiness-workshop.png"><meta property="og:url" content="${canonical}"><meta name="twitter:card" content="summary_large_image"><link rel="canonical" href="${canonical}"><link rel="icon" href="./assets/mark.svg" type="image/svg+xml"><link rel="stylesheet" href="./style.css"><script src="./settings.js" defer></script><script src="./app.js" defer></script></head><body id="top">${header(home)}<main id="main">${content}</main>${footer()}</body></html>`;
+  content = premiumContent(content, filename, sectors);
+  return `<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#071b35"><title>${title}｜ソナエデザイン</title><meta name="description" content="${description}"><meta property="og:title" content="${title}｜ソナエデザイン"><meta property="og:description" content="${description}"><meta property="og:type" content="website"><meta property="og:locale" content="ja_JP"><meta property="og:image" content="${base}assets/blue-share.jpg"><meta property="og:url" content="${canonical}"><meta name="twitter:card" content="summary_large_image"><link rel="canonical" href="${canonical}"><link rel="icon" href="./assets/mark.svg" type="image/svg+xml"><link rel="stylesheet" href="./style.css"><link rel="stylesheet" href="./premium.css"><script src="./settings.js" defer></script><script src="./app.js" defer></script><script src="./premium.js" defer></script></head><body id="top" class="${home ? "home-page" : "inner-page"}">${header(home)}<main id="main">${content}</main>${footer()}${premiumExtras(sectors,filename)}</body></html>`;
 }
 const sectorCards = sectors.map(s => `<a class="sector-card" href="./${s.slug}.html"><div class="sector-card-top">${icon(s.slug)}<span>${s.number}</span></div><h3>${s.name}</h3><p>${s.audience}</p><div class="sector-card-bottom"><span>この分野の支援を見る</span>${arrow}</div></a>`).join("");
 const process = `<section class="section wrap" id="process"><div class="section-heading"><div><p class="eyebrow">ご依頼の流れ</p><h2>課題がまとまっていなくても、<br>大丈夫です。</h2></div><p>まずは現状を整理。<br>支援の内容と費用に合意してから進めます。</p></div><ol class="process-list"><li><span>01</span><h3>現状をお聞きします</h3><p>施設の種類や体制、既存の計画、困っている場面を確認します。</p></li><li><span>02</span><h3>内容・費用をご提案</h3><p>目的、実施方法、日程、成果物、費用を事前にすり合わせます。</p></li><li><span>03</span><h3>実施して、改善へ</h3><p>計画づくりや研修・訓練を実施。課題と、次に見直すことを整理します。</p></li></ol><div class="price-note"><strong>料金・対応地域について</strong><p>支援内容、準備・実施時間、参加人数、訪問の有無などに応じた個別見積もりです。実施地域やオンライン対応も、内容に合わせてご相談いただけます。</p></div></section>`;
@@ -130,6 +132,8 @@ const pages = [
 for (const [filename,title,description,content] of pages) {
   const markup = page(title,description,filename,content,filename==="index.html")
     .replace('href="./style.css"', `href="./style.css?v=${assetVersion}"`)
+    .replace('href="./premium.css"', `href="./premium.css?v=${assetVersion}"`)
+    .replace('src="./premium.js"', `src="./premium.js?v=${assetVersion}"`)
     .replace('src="./app.js"', `src="./app.js?v=${assetVersion}"`)
     .replace('src="./settings.js"', `src="./settings.js?v=${assetVersion}"`);
   await writeFile(root+filename, markup, "utf8");
