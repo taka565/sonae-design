@@ -1,7 +1,11 @@
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { createHash } from "node:crypto";
 import { fileURLToPath } from "node:url";
 
 const root = fileURLToPath(new URL("../dist/", import.meta.url));
+const assetHash = createHash("sha256");
+for (const file of ["style.css", "app.js", "settings.js"]) assetHash.update(await readFile(root + file));
+const assetVersion = assetHash.digest("hex").slice(0,12);
 const base = "https://taka565.github.io/sonae-design/";
 const arrow = '<span aria-hidden="true">↗</span>';
 const icons = {
@@ -124,7 +128,11 @@ const pages = [
   ["resources.html", "防災の読みもの・公的支援", "BCPの見直し、机上訓練、備蓄のヒント。公的支援や関連メディアの確認先をご案内します。", resources]
 ];
 for (const [filename,title,description,content] of pages) {
-  await writeFile(root+filename, page(title,description,filename,content,filename==="index.html"), "utf8");
+  const markup = page(title,description,filename,content,filename==="index.html")
+    .replace('href="./style.css"', `href="./style.css?v=${assetVersion}"`)
+    .replace('src="./app.js"', `src="./app.js?v=${assetVersion}"`)
+    .replace('src="./settings.js"', `src="./settings.js?v=${assetVersion}"`);
+  await writeFile(root+filename, markup, "utf8");
 }
 await writeFile(root+"sitemap.xml", `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${pages.map(([f])=>`\n  <url><loc>${f === "index.html" ? base : base+f}</loc><lastmod>2026-10-22</lastmod></url>`).join("")}\n</urlset>\n`);
 console.log(`Built ${pages.length} static pages.`);
