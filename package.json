@@ -1,12 +1,12 @@
 {
   "name": "sonae-design",
-  "version": "3.0.0",
+  "version": "4.0.0",
   "private": true,
   "type": "module",
   "scripts": {
     "start": "node server.mjs",
     "build": "node scripts/build.mjs",
     "verify": "node scripts/verify.mjs",
-    "check": "node --check scripts/build.mjs && node --check scripts/premium.mjs && node --check dist/app.js && node --check dist/premium.js && node --check dist/settings.js && node --check server.mjs"
+    "check": "node --check scripts/build.mjs && node --check scripts/home.mjs && node --check scripts/layout.mjs && node --check dist/app.js && node --check dist/settings.js && node --check server.mjs"
   }
 }

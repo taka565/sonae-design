@@ -16,7 +16,8 @@ document.addEventListener("click", event => { if (!event.target.closest(".header
 document.addEventListener("keydown", event => {
   if (event.key === "Escape" && menuButton.getAttribute("aria-expanded") === "true") { closeMenu(); menuButton.focus(); }
 });
-window.matchMedia("(min-width: 901px)").addEventListener("change", closeMenu);
+window.matchMedia("(min-width: 68.0625rem)").addEventListener("change", closeMenu);
+document.documentElement.classList.add("js");
 // Deep links to readings or service definitions open the containing details.
 function revealHash() {
   let id;
